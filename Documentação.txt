@@ -1,0 +1,14 @@
+Programa (em GO) para escolher onde comer:
+	*Ter uma lista de pratos para comer:
+		Essa lista tem que ter "Tags":
+			Lista Bacalhau "Tag":
+				Bacalhau com natas ("Prato")
+				Bacalhau à Brás ("Prato")
+				Bacalhau Cozido ("Prato")
+				
+	*Ter uma Lista para "Prato Escolhidos" 
+		Bacalhau com natas ("Prato")
+		
+	*Sistema de autenticação
+
+Programa (em VUE) para front-end	
