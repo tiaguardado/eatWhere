@@ -123,7 +123,7 @@ func main() {
 			if restauranteMap[prato.Restaurante] == nil {
 				restauranteMap[prato.Restaurante] = make(map[string][]Prato)
 			}
-			// Adiciona o prato à lista do restaurante correspondente
+			// Adiciona o prato à lista do restaurante correspondente, agrupando por tag
 			restauranteMap[prato.Restaurante][prato.Tag] = append(restauranteMap[prato.Restaurante][prato.Tag], prato)
 		}
 
@@ -131,12 +131,15 @@ func main() {
 		var restaurantesComAmbasTags []map[string]interface{}
 		for restaurante, tags := range restauranteMap {
 			// Verifica se o restaurante tem pratos de ambas as tags
-			if _, ok1 := tags[tag1]; ok1 && _, ok2 := tags[tag2]; ok2 {
+			hasTag1 := tags[tag1] != nil
+			hasTag2 := tags[tag2] != nil
+
+			if hasTag1 && hasTag2 {
 				// Adiciona o restaurante e seus pratos às duas tags
 				restaurantesComAmbasTags = append(restaurantesComAmbasTags, map[string]interface{}{
-				"restaurante": restaurante,
-				"pratos":      tags,
-			})
+					"restaurante": restaurante,
+					"pratos":      tags,
+				})
 			}
 		}
 
@@ -147,7 +150,6 @@ func main() {
 			c.JSON(http.StatusOK, restaurantesComAmbasTags)
 		}
 	})
-
 
 	// Rota para listar pratos por restaurante
 	r.GET("/pratos/restaurante/:restaurante", func(c *gin.Context) {
