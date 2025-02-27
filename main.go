@@ -108,6 +108,47 @@ func main() {
 		c.JSON(http.StatusOK, filtrados)
 	})
 
+	r.GET("/restaurantes/:tag1/:tag2", func(c *gin.Context) {
+		tag1 := c.Param("tag1")
+		tag2 := c.Param("tag2")
+
+		var pratos []Prato
+		// Busca os pratos que têm a tag "tag1" ou "tag2"
+		db.Where("tag = ? OR tag = ?", tag1, tag2).Find(&pratos)
+
+		// Criar um mapa para armazenar os pratos de cada restaurante
+		restauranteMap := make(map[string]map[string][]Prato)
+
+		for _, prato := range pratos {
+			if restauranteMap[prato.Restaurante] == nil {
+				restauranteMap[prato.Restaurante] = make(map[string][]Prato)
+			}
+			// Adiciona o prato à lista do restaurante correspondente
+			restauranteMap[prato.Restaurante][prato.Tag] = append(restauranteMap[prato.Restaurante][prato.Tag], prato)
+		}
+
+		// Agora, verificar se algum restaurante tem ambos os pratos (tag1 e tag2)
+		var restaurantesComAmbasTags []map[string]interface{}
+		for restaurante, tags := range restauranteMap {
+			// Verifica se o restaurante tem pratos de ambas as tags
+			if _, ok1 := tags[tag1]; ok1 && _, ok2 := tags[tag2]; ok2 {
+				// Adiciona o restaurante e seus pratos às duas tags
+				restaurantesComAmbasTags = append(restaurantesComAmbasTags, map[string]interface{}{
+				"restaurante": restaurante,
+				"pratos":      tags,
+			})
+			}
+		}
+
+		// Se nenhum restaurante foi encontrado
+		if len(restaurantesComAmbasTags) == 0 {
+			c.JSON(http.StatusNotFound, gin.H{"message": "Nenhum restaurante encontrado com pratos de ambas as tags"})
+		} else {
+			c.JSON(http.StatusOK, restaurantesComAmbasTags)
+		}
+	})
+
+
 	// Rota para listar pratos por restaurante
 	r.GET("/pratos/restaurante/:restaurante", func(c *gin.Context) {
 		restaurante := c.Param("restaurante")
